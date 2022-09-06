@@ -1,13 +1,2 @@
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
-
-
-# Executables
-*.hex
-
-# Build/Dist folder
-*/build/
-*/dist/
+# Ignore ZIP files
+*.zip

@@ -1,15 +1,22 @@
-# Microchip Modbus RTU implémenter sur PIC18F57Q43
+<h1>Evolution des programmes sur PIC18F57Q43</h1>
 
-Création d'une implémentation du protocole Modbus RTU sur microcontrôleur PIC.
+- [Le matériel et logiciel minumum requis](#le-matériel-et-logiciel-minumum-requis)
+- [Carte CuriosityNano PIC18F57Q43](#carte-curiositynano-pic18f57q43)
+- [Projet de mise en oeuvre simple du module UART](#projet-de-mise-en-oeuvre-simple-du-module-uart)
+  - [Vu du terminal sérial](#vu-du-terminal-sérial)
+- [Projet de mise en oeuvre avancé du module UART](#projet-de-mise-en-oeuvre-avancé-du-module-uart)
+  - [Premimer test du programme via le terminal sérial](#premimer-test-du-programme-via-le-terminal-sérial)
+- [A venir...](#a-venir)
+- [Liens Internet](#liens-internet)
 
-## Matériels et logiciels nécessaires
+---
+
+## Le matériel et logiciel minumum requis
 
 * Une [carte PIC18F57Q43 Curiosity Nano](https://www.microchip.com/en-us/development-tool/DM164150) (vous pouvez la trouver sur Microchip Direct, mais aussi sur Mouser, Digikey et d'autres magasins de composants électroniques en ligne en recherchant le code DM164150).</br>
 Voir en bas de la page Internet de la carte la section documentation, le manuel d'utilisation et le schéma de la carte est disponible.
-* Un [câble USB type A vers USB micro B](https://media.ldlc.com/r374/ld/products/00/01/20/16/LD0001201600_2.jpg)
 * La dernière version de MPLAB X IDE, ici la version utilisée est la [v6.00](https://www.microchip.com/mplab/mplab-x-ide)
 * La dernière version du compilateur XC8, la version utilisée est la [v2.40](https://www.microchip.com/en-us/development-tools-tools-and-software/mplab-xc-compilers#MPLAB%20XC%20Compiler%20Choices) (celle-ci est utilisé à la fois pour les PIC et les AVR)
-* Logiciel ce communication série [Docklight V2.4](https://docklight.de/downloads/)
 
 ---
 
@@ -32,13 +39,29 @@ Voir en bas de la page Internet de la carte la section documentation, le manuel 
 
 ---
 
-## Mise en oeuvre de l'UART
+## Projet de mise en oeuvre simple du module UART
 
-<progress value="10" max="100"><span class="wb-inv">10 %</span></progress>
+Switch Branch : `git switch basic-use-of-uart`
 
-### Terminal sérial
+### Vu du terminal sérial
 
 ![Test de la carte CuriosityNano](images/docklight-demo-pic18f57q43-curiosity-nano.png)
+
+---
+
+## Projet de mise en oeuvre avancé du module UART
+
+Switch Branch : `git switch advanced-use-of-uart-with-fsm`
+
+### Premimer test du programme via le terminal sérial
+
+![Test de la carte CuriosityNano](images/docklight-demo-tester-click-leds.png)
+
+---
+
+## A venir...
+
+Implémentation du protocole Modbus RTU sur microcontrôleur Microchip PIC18F57Q43, création d'une implémentation du protocole Modbus RTU sur microcontrôleur PIC.
 
 ---
 
