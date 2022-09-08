@@ -1,11 +1,12 @@
-<h1>Evolution des programmes sur PIC18F57Q43</h1>
+<h1>Présentation des programmes pour PIC18F57Q43</h1>
 
 - [Le matériel et logiciel minumum requis](#le-matériel-et-logiciel-minumum-requis)
 - [Carte CuriosityNano PIC18F57Q43](#carte-curiositynano-pic18f57q43)
 - [Projet de mise en oeuvre simple du module UART](#projet-de-mise-en-oeuvre-simple-du-module-uart)
-  - [Vu du terminal sérial](#vu-du-terminal-sérial)
-- [Projet de mise en oeuvre avancé du module UART](#projet-de-mise-en-oeuvre-avancé-du-module-uart)
   - [Premimer test du programme via le terminal sérial](#premimer-test-du-programme-via-le-terminal-sérial)
+- [Evolution du programme de mise en oeuvre simple de l'UART](#evolution-du-programme-de-mise-en-oeuvre-simple-de-luart)
+  - [Vu du terminal sérial](#vu-du-terminal-sérial)
+- [Projet de mise en oeuvre avancée du module UART](#projet-de-mise-en-oeuvre-avancée-du-module-uart)
 - [A venir...](#a-venir)
 - [Liens Internet](#liens-internet)
 
@@ -41,21 +42,33 @@ Voir en bas de la page Internet de la carte la section documentation, le manuel 
 
 ## Projet de mise en oeuvre simple du module UART
 
-Switch Branch : `git switch basic-use-of-uart`
+Première mise en oeuvre de l'UART, echo des données reçues et envoie d'une trame lors de l'appuis sur le bouton poussoir.
 
-### Vu du terminal sérial
+[Switch Branch][1] : `git switch basic-use-of-uart`
+
+### Premimer test du programme via le terminal sérial
 
 ![Test de la carte CuriosityNano](images/docklight-demo-pic18f57q43-curiosity-nano.png)
 
 ---
 
-## Projet de mise en oeuvre avancé du module UART
+## Evolution du programme de mise en oeuvre simple de l'UART
 
-Switch Branch : `git switch advanced-use-of-uart-with-fsm`
+Suite de la mise en oeuvre de l'UART, envoie d'une trame lors de l'appuis sur le bouton poussoir et pilotage de 12 LED.
 
-### Premimer test du programme via le terminal sérial
+[Switch Branch][2] : `git switch basic-use-of-uart-with-led-control`
+
+### Vu du terminal sérial
 
 ![Test de la carte CuriosityNano](images/docklight-demo-tester-click-leds.png)
+
+---
+
+## Projet de mise en oeuvre avancée du module UART
+
+Premier pas dans la mise en oeuvre d'une machine à états pour la réception d'une trame.
+
+[Switch Branch][3] : `git switch advanced-use-of-uart-with-fsm`
 
 ---
 
@@ -73,3 +86,9 @@ Implémentation du protocole Modbus RTU sur microcontrôleur Microchip PIC18F57Q
 * Microchip, [PIC18F57Q43 Curiosity Nano Evaluation Kit - Part Number: DM164150](https://www.microchip.com/developmenttools/ProductDetails/DM164150)
 * Blog, [PIC18F57Q43 Curiosity Nano + MPLAB Code Configurator](https://www.settorezero.com/wordpress/curiosity-nano-code-configurator-per-entrare-nel-mondo-dei-microcontrollori-pic-senza-sforzo-e-in-economia/)
 * GitHub, [Cyb3rn0id / Microchip_Curiosity_Nano_Examples](https://github.com/Cyb3rn0id/Microchip_Curiosity_Nano_Examples)
+
+<!-- Ci-dessous les liens en références dans ce fichier -->
+
+[1]: https://github.com/ArnauldDev/Microchip-Modbus-RTU-on-PIC18F57Q43/tree/basic-use-of-uart
+[2]: https://github.com/ArnauldDev/Microchip-Modbus-RTU-on-PIC18F57Q43/tree/basic-use-of-uart-with-led-control
+[3]: https://github.com/ArnauldDev/Microchip-Modbus-RTU-on-PIC18F57Q43/tree/advanced-use-of-uart-with-fsm
