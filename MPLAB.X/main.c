@@ -77,17 +77,115 @@ int main(void)
     uart_error_status.status = UART1_ErrorGet();
     UART1_Write(uart_error_status.status);
 
-    while (1)
+    while (true)
     {
-        volatile uint8_t rxData;
+        uint8_t num_led_rx;
 
         // Logic to echo received data
         if (UART1_IsRxReady())
         {
-            rxData = UART1_Read();
-            if (UART1_IsTxReady())
+            num_led_rx = UART1_Read();
+
+            switch (num_led_rx)
             {
-                UART1_Write(rxData);
+                case '0':
+                    printf("All LED Off\r\n");
+                    LED_LD1_SetLow();
+                    LED_LD2_SetLow();
+                    LED_LD3_SetLow();
+                    LED_LD4_SetLow();
+                    LED_LD5_SetLow();
+                    LED_LD6_SetLow();
+                    LED_LD7_SetLow();
+                    LED_LD8_SetLow();
+                    LED_LD9_SetLow();
+                    LED_LD10_SetLow();
+                    LED_LD11_SetLow();
+                    LED_LD12_SetLow();
+                    break;
+
+                case '1':
+                    printf("LED_LD1 On\r\n");
+                    LED_LD1_SetHigh();
+                    break;
+
+                case '2':
+                    printf("LED_LD2 On\r\n");
+                    LED_LD2_SetHigh();
+                    break;
+
+                case '3':
+                    printf("LED_LD3 On\r\n");
+                    LED_LD3_SetHigh();
+                    break;
+
+                case '4':
+                    printf("LED_LD4 On\r\n");
+                    LED_LD4_SetHigh();
+                    break;
+
+                case '5':
+                    printf("LED_LD5 On\r\n");
+                    LED_LD5_SetHigh();
+                    break;
+
+                case '6':
+                    printf("LED_LD6 On\r\n");
+                    LED_LD6_SetHigh();
+                    break;
+
+                case '7':
+                    printf("LED_LD7 On\r\n");
+                    LED_LD7_SetHigh();
+                    break;
+
+                case '8':
+                    printf("LED_LD8 On\r\n");
+                    LED_LD8_SetHigh();
+                    break;
+
+                case '9':
+                    printf("LED_LD9 On\r\n");
+                    LED_LD9_SetHigh();
+                    break;
+
+                case 'A':
+                case 'a':
+                    printf("LED_LD10 On\r\n");
+                    LED_LD10_SetHigh();
+                    break;
+
+                case 'B':
+                case 'b':
+                    printf("LED_LD11 On\r\n");
+                    LED_LD11_SetHigh();
+                    break;
+
+                case 'C':
+                case 'c':
+                    printf("LED_LD12 On\r\n");
+                    LED_LD12_SetHigh();
+                    break;
+
+                case 'F':
+                case 'f':
+                    printf("All LED On\r\n");
+                    LED_LD1_SetHigh();
+                    LED_LD2_SetHigh();
+                    LED_LD3_SetHigh();
+                    LED_LD4_SetHigh();
+                    LED_LD5_SetHigh();
+                    LED_LD6_SetHigh();
+                    LED_LD7_SetHigh();
+                    LED_LD8_SetHigh();
+                    LED_LD9_SetHigh();
+                    LED_LD10_SetHigh();
+                    LED_LD11_SetHigh();
+                    LED_LD12_SetHigh();
+                    break;
+
+                default:
+                    printf("Error num LED unknown!\r\n");
             }
         }
 
