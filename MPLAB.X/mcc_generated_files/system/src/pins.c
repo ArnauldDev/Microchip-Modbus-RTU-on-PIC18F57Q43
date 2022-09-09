@@ -45,7 +45,7 @@ void PIN_MANAGER_Initialize(void)
     LATC = 0x0;
     LATD = 0x0;
     LATE = 0x0;
-    LATF = 0x8;
+    LATF = 0x9;
 
     /**
     TRISx registers
@@ -118,6 +118,7 @@ void PIN_MANAGER_Initialize(void)
     PPS registers
     */
     U1RXPPS = 0x29; //RF1->UART1:RX1;
+    INT0PPS = 0xC; //RB4->INTERRUPT MANAGER:INT0;
     RF0PPS = 0x20;  //RF0->UART1:TX1;
 
    /**

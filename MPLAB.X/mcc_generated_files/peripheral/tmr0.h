@@ -1,15 +1,3 @@
-/**
- * System Driver Source File
- * 
- * @file system.c
- * 
- * @ingroup systemdriver
- * 
- * @brief This is the generated driver implementation file for the System Driver.
- *
- * @version Driver Version 2.0.1
-*/
-
 /*
 © [2022] Microchip Technology Inc. and its subsidiaries.
 
@@ -31,22 +19,4 @@
     THIS SOFTWARE.
 */
 
- /**
-   Section: Included Files
- */
-#include "../system.h"
-
-/**
-  Section: Driver APIs
-*/
-
-void SYSTEM_Initialize(void)
-{
-    CLOCK_Initialize();
-    PIN_MANAGER_Initialize();
-    TMR0_Initialize();
-    UART1_Initialize();
-    INTERRUPT_Initialize();
-}
-
-
+void TMR0_Initialize(void);

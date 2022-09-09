@@ -1,6 +1,6 @@
 # Microchip Modbus RTU implémenter sur PIC18F57Q43
 
-Création d'une implémentation du protocole Modbus RTU sur microcontrôleur PIC.
+Interface simple de LED control via l'UART, dans le but de créer une implémentation du protocole Modbus RTU sur microcontrôleur PIC.
 
 ## Matériels et logiciels nécessaires
 
@@ -20,7 +20,7 @@ Voir en bas de la page Internet de la carte la section documentation, le manuel 
 <html>
 <!-- Tableau simple avec en-tête -->
 <p align="center">
-<a href="https://docs.google.com/document/d/1mcOm10D477hyFiMuCVZdUryhYyRF4xZHGxpxrDaOEMk/edit?usp=sharing" title="Curiosity Nano Development Platform" target="_blank">
+<a href="https://docs.google.com/document/d/1mcOm10D477hyFiMuCVZdUryhYyRF4xZHGxpxrDaOEMk/edit?usp=sharing" title="carte PIC18F57Q43 Curiosity Nano" target="_blank">
 <table style="margin-left: auto; margin-right: auto;">
   <tr>
     <td><img src="images/img_google_docs_icon.png" width="30"></td>
@@ -31,6 +31,8 @@ Voir en bas de la page Internet de la carte la section documentation, le manuel 
 </a>
 </p>
 </html>
+
+Mesure de l'horloge interne CLKOUT sur la broche RA6.
 
 <html>
 <p align="center">
@@ -43,15 +45,18 @@ Voir en bas de la page Internet de la carte la section documentation, le manuel 
 
 <https://www.microchip.com/en-us/development-tool/AC164162>
 
+---
+
 ### Utilisation du support mikroBUS™
 
-[mikroBUS™ Standard](https://www.mikroe.com/mikrobus)
+Voir [mikroBUS™ Standard](https://www.mikroe.com/mikrobus) et les modules [CLICK BOARDS](https://www.mikroe.com/click).
 
-[CLICK BOARDS](https://www.mikroe.com/click)
-
-![PINOUT DIAGRAM](images/mikrobus-pinout-diagram.png)
-
-![click-boards-2-pinout](images/click-boards-2-pinout.png)
+<html>
+<p align="center">
+<img src="images/mikrobus-pinout-diagram.png" align="center">
+<img src="images/click-boards-2-pinout.png" align="center">
+</p>
+</html>
 
 | MCU's Pin & Net name | Description J5 | mikroBUS™ socket 2 | Description J6 | MCU's Pin & Net name |
 | :------------------: | -------------: | :----------------: | :------------- | :------------------: |
@@ -89,20 +94,15 @@ Voir en bas de la page Internet de la carte la section documentation, le manuel 
 
 ## Mise en oeuvre d'une l'UART
 
-<p><progress id="avancement" value="20" max="100"></progress></p>
+Suite de la prise en main des fonctions de l'UART pour la réception de données de contrôle pour l'allumage des LED de la carte TESTER CLICK de MikroElektronika.
 
-<progress value="75" max="100"></progress> 75%
+Mise en oeuvre de la couche applicative avec la file (FIFO) de réception des caratères.
 
-<html>
-<p>Progression du projet :
-       <progress id="avancement" value="50" max="100"></progress>
-       <span id="pourcentage"></span>
-       <input type="button" onclick="modif(-10);" value="-">
-       <input type="button" onclick="modif(10);" value="+">
-</p>
-</html>
+La réception d'un caratère ASCII héxadecimale `'1'`, `'2'`, `'3'`, ... `'9'`, `'A'`, `'B'`, `'C'`, permet d'allumer la LED correspondante (1 à 12).
 
-<meter min="0" max="100" value="50">50 places</meter>
+Le caractère `'F'` allume toutes les LED et le caractère `'0'` éteint toutes les LED.
+
+Le caractère `'T'` allume ou éteint le Timer 0, qui fait clignotter la LED0 sur la carte.
 
 ### Test du programme via le terminal sérial
 
@@ -113,3 +113,4 @@ Voir en bas de la page Internet de la carte la section documentation, le manuel 
 ## Liens Internet
 
 * Microchip, [PIC18F57Q43 Curiosity Nano Evaluation Kit - Part Number: DM164150](https://www.microchip.com/developmenttools/ProductDetails/DM164150)
+* [Vectored Interrupts on 8-Bit MCU](https://microchipdeveloper.com/8bit:vectored-interrupts)

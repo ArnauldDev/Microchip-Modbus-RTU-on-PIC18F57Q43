@@ -7,7 +7,7 @@
  * 
  * @brief This file contains API prototypes and other datatypes for Interrupt Manager.
  *
- * @version Interrupt Manager Driver Version 2.0.4
+ * @version Interrupt Manager Driver Version 2.1.3
 */
 
 /*
@@ -34,32 +34,55 @@
 #ifndef INTERRUPT_H
 #define INTERRUPT_H
 
-
 /**
  * @ingroup interrupt
- * @brief This macro will enable global interrupts.
+ * @brief This macro will enable high priority global interrupts.
  * @param void
  * @return void
  */
-#define INTERRUPT_GlobalInterruptEnable() (INTCON0bits.GIE = 1)
+#define INTERRUPT_GlobalInterruptHighEnable() (INTCON0bits.GIE = 1)
 
 /**
  * @ingroup interrupt
- * @brief This macro will disable global interrupts.
+ * @brief This macro will disable high priority global interrupts.
  * @param void
  * @return void
  */
-#define INTERRUPT_GlobalInterruptDisable() (INTCON0bits.GIE = 0)
+#define INTERRUPT_GlobalInterruptHighDisable() (INTCON0bits.GIE = 0)
 
 /**
  * @ingroup interrupt
- * @brief This macro will return the global interrupt enable bit status.
+ * @brief This macro will return the global interrupt enable high bit status.
  * @param void
  * @retval 0 - Global Interrupt Disabled
  * @retval 1 - Global Interrupt Enabled
  */
-#define INTERRUPT_GlobalInterruptStatus() (INTCON0bits.GIE)
+#define INTERRUPT_GlobalInterruptHighStatus() (INTCON0bits.GIE)
 
+/**
+ * @ingroup interrupt
+ * @brief This macro will enable low priority global interrupts.
+ * @param void
+ * @return void
+ */
+#define INTERRUPT_GlobalInterruptLowEnable() (INTCON0bits.GIEL = 1)
+
+/**
+ * @ingroup interrupt
+ * @brief This macro will disable low priority global interrupts.
+ * @param void
+ * @return void
+ */
+#define INTERRUPT_GlobalInterruptLowDisable() (INTCON0bits.GIEL = 0)
+
+/**
+ * @ingroup interrupt
+ * @brief This macro will return the global interrupt enable low bit status.
+ * @param void
+ * @retval 0 - Global Interrupt Disabled
+ * @retval 1 - Global Interrupt Enabled
+ */
+#define INTERRUPT_GlobalInterruptLowStatus() (INTCON0bits.GIEL)
 
 /**
  * @ingroup interrupt
@@ -93,6 +116,7 @@ void INTERRUPT_Initialize (void);
  * @return void
  */
 #define EXT_INT0_InterruptEnable()       (PIE1bits.INT0IE = 1)
+
 
 /**
  * @ingroup interrupt
@@ -134,6 +158,7 @@ void INTERRUPT_Initialize (void);
  */
 #define EXT_INT1_InterruptEnable()       (PIE6bits.INT1IE = 1)
 
+
 /**
  * @ingroup interrupt
  * @brief This routine set the edge detect of the extern interrupt to positive edge, and thereafter interrupt flag will be set when the external interrupt pins level transitions from a low to high level.
@@ -174,6 +199,7 @@ void INTERRUPT_Initialize (void);
  */
 #define EXT_INT2_InterruptEnable()       (PIE10bits.INT2IE = 1)
 
+
 /**
  * @ingroup interrupt
  * @brief This routine set the edge detect of the extern interrupt to positive edge, and thereafter interrupt flag will be set when the external interrupt pins level transitions from a low to high level.
@@ -193,15 +219,6 @@ void INTERRUPT_Initialize (void);
 /**
    Section: External Interrupt Handlers
  */
-
-/**
- * @ingroup interrupt
- * @brief This ISR will execute whenever the signal on the INT0 pin will transition to the preconfigured state.
- * @pre Interrupt Manager is initialized.
- * @param void
- * @return void
- */
-void INT0_ISR(void);
 
 /**
  * @ingroup interrupt
@@ -241,15 +258,6 @@ void INT0_DefaultInterruptHandler(void);
 
 /**
  * @ingroup interrupt
- * @brief This ISR will execute whenever the signal on the INT1 pin will transition to the preconfigured state.
- * @pre Interrupt Manager is initialized.
- * @param void
- * @return void
- */
-void INT1_ISR(void);
-
-/**
- * @ingroup interrupt
  * @brief Allows for a specific callback function to be called in the INT1 ISR and allows for a non-specific interrupt handler to be called at runtime.
  * @pre Interrupt Manager is initialized.
  * @param void
@@ -283,15 +291,6 @@ extern void (*INT1_InterruptHandler)(void);
  * @return void
  */
 void INT1_DefaultInterruptHandler(void);
-
-/**
- * @ingroup interrupt
- * @brief This ISR will execute whenever the signal on the INT2 pin will transition to the preconfigured state.
- * @pre Interrupt Manager is initialized.
- * @param void
- * @return void
- */
-void INT2_ISR(void);
 
 /**
  * @ingroup interrupt

@@ -38,13 +38,13 @@
 #pragma config RSTOSC = EXTOSC     // Reset Oscillator Selection->EXTOSC operating per FEXTOSC bits (device manufacturing default)
 
 //CONFIG2
-#pragma config CLKOUTEN = OFF     // Clock out Enable bit->CLKOUT function is disabled
+#pragma config CLKOUTEN = ON     // Clock out Enable bit->CLKOUT function is enabled
 #pragma config FCMEN = ON     // Fail-Safe Clock Monitor Enable bit->Fail-Safe Clock Monitor enabled
 #pragma config CSWEN = ON     // Clock Switch Enable bit->Writing to NOSC and NDIV is allowed
 #pragma config PR1WAY = ON     // PRLOCKED One-Way Set Enable bit->PRLOCKED bit can be cleared and set only once
 
 //CONFIG3
-#pragma config MVECEN = OFF     // Multi-vector enable bit->Interrupt contoller does not use vector table to prioritze interrupts
+#pragma config MVECEN = ON     // Multi-vector enable bit->Multi-vector enabled, Vector table used for interrupts
 #pragma config MCLRE = EXTMCLR     // MCLR Enable bit->If LVP = 0, MCLR pin is MCLR; If LVP = 1, RE3 pin function is MCLR 
 #pragma config BOREN = SBORDIS     // Brown-out Reset Enable bits->Brown-out Reset enabled , SBOREN bit is ignored
 #pragma config PWRTS = PWRT_OFF     // Power-up timer selection bits->PWRT is disabled

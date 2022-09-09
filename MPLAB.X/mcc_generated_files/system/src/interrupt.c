@@ -7,7 +7,7 @@
  * 
  * @brief This file contains the driver code for Interrupt Manager.
  * 
- * @version Interrupt Manager Driver Version 2.0.4
+ * @version Interrupt Manager Driver Version 2.12
 */
 
 /*
@@ -33,7 +33,7 @@
 
 #include "../../system/interrupt.h"
 #include "../../system/system.h"
-#include "../pins.h"
+#include <stdbool.h>
 
 void (*INT0_InterruptHandler)(void);
 void (*INT1_InterruptHandler)(void);
@@ -41,16 +41,35 @@ void (*INT2_InterruptHandler)(void);
 
 void  INTERRUPT_Initialize (void)
 {
-    // Disable Interrupt Priority Vectors (16CXXX Compatibility Mode)
-    INTCON0bits.IPEN = 0;
+    INTCON0bits.IPEN = 1;
+
+    bool state = (unsigned char)GIE;
+    GIE = 0;
+    IVTLOCK = 0x55;
+    IVTLOCK = 0xAA;
+    IVTLOCKbits.IVTLOCKED = 0x00; // unlock IVT
+
+    IVTBASEU = 0;
+    IVTBASEH = 0;
+    IVTBASEL = 8;
+
+    IVTLOCK = 0x55;
+    IVTLOCK = 0xAA;
+    IVTLOCKbits.IVTLOCKED = 0x01; // lock IVT
+
+    GIE = state;
+    // Assign peripheral interrupt priority vectors
+    IPR1bits.INT0IP = 1;
+    IPR4bits.U1RXIP = 1;
+    IPR4bits.U1TXIP = 1;
 
     // Clear the interrupt flag
     // Set the external interrupt edge detect
     EXT_INT0_InterruptFlagClear();   
-    EXT_INT0_risingEdgeSet();    
+    EXT_INT0_fallingEdgeSet();    
     // Set Default Interrupt Handler
     INT0_SetInterruptHandler(INT0_DefaultInterruptHandler);
-    // EXT_INT0_InterruptEnable();
+    EXT_INT0_InterruptEnable();
 
     // Clear the interrupt flag
     // Set the external interrupt edge detect
@@ -70,8 +89,20 @@ void  INTERRUPT_Initialize (void)
 
 }
 
+void __interrupt(irq(default),base(8)) Default_ISR()
+{
+}
 
-void INT0_ISR(void)
+
+
+/**
+ * @ingroup interrupt
+ * @brief This ISR will execute whenever the signal on the INT0 pin will transition to the preconfigured state.
+ * @pre Interrupt Manager is initialized.
+ * @param void
+ * @return void
+ */
+void __interrupt(irq(IRQ_INT0),base(8)) INT0_ISR()
 {
     EXT_INT0_InterruptFlagClear();
 
@@ -97,7 +128,15 @@ void INT0_DefaultInterruptHandler(void){
     // add your INT0 interrupt custom code
     // or set custom function using INT0_SetInterruptHandler()
 }
-void INT1_ISR(void)
+
+/**
+ * @ingroup interrupt
+ * @brief This ISR will execute whenever the signal on the INT1 pin will transition to the preconfigured state.
+ * @pre Interrupt Manager is initialized.
+ * @param void
+ * @return void
+ */
+void __interrupt(irq(IRQ_INT1),base(8)) INT1_ISR()
 {
     EXT_INT1_InterruptFlagClear();
 
@@ -123,7 +162,15 @@ void INT1_DefaultInterruptHandler(void){
     // add your INT1 interrupt custom code
     // or set custom function using INT1_SetInterruptHandler()
 }
-void INT2_ISR(void)
+
+/**
+ * @ingroup interrupt
+ * @brief This ISR will execute whenever the signal on the INT2 pin will transition to the preconfigured state.
+ * @pre Interrupt Manager is initialized.
+ * @param void
+ * @return void
+ */
+void __interrupt(irq(IRQ_INT2),base(8)) INT2_ISR()
 {
     EXT_INT2_InterruptFlagClear();
 

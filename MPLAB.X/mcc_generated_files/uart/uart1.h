@@ -71,8 +71,8 @@
 #define UART1__AutoBaudEventEnableGet   (NULL)
 #define UART1_ErrorGet             UART1_ErrorGet
 
-#define UART1_TxCompleteCallbackRegister     (NULL)
-#define UART1_RxCompleteCallbackRegister      (NULL)
+#define UART1_TxCompleteCallbackRegister     UART1_TxCompleteCallbackRegister
+#define UART1_RxCompleteCallbackRegister      UART1_RxCompleteCallbackRegister
 #define UART1_TxCollisionCallbackRegister  (NULL)
 #define UART1_FramingErrorCallbackRegister UART1_FramingErrorCallbackRegister
 #define UART1_OverrunErrorCallbackRegister UART1_OverrunErrorCallbackRegister
@@ -192,6 +192,38 @@ inline void UART1_SendBreakControlDisable(void);
 
 /**
  * @ingroup uart1
+ * @brief This API enables the UART1 transmitter interrupt.
+ * @param None.
+ * @return None.
+ */
+inline void UART1_TransmitInterruptEnable(void);
+
+/**
+ * @ingroup uart1
+ * @brief This API disables the UART1 transmitter interrupt.
+ * @param None.
+ * @return None.
+ */
+inline void UART1_TransmitInterruptDisable(void);
+
+/**
+ * @ingroup uart1
+ * @brief This API enables the UART1 receiver interrupt.
+ * @param None.
+ * @return None.
+ */
+inline void UART1_ReceiveInterruptEnable(void);
+
+/**
+ * @ingroup uart1
+ * @brief This API disables the UART1 receiver interrupt.
+ * @param None.
+ * @return None.
+ */
+inline void UART1_ReceiveInterruptDisable(void);
+
+/**
+ * @ingroup uart1
  * @brief This API checks if UART1 receiver has received data and ready to be read.
  * @param None.
  * @retval true if UART1 receiver FIFO has a data
@@ -270,6 +302,39 @@ void UART1_OverrunErrorCallbackRegister(void (* callbackHandler)(void));
  * @return None.
  */
 void UART1_ParityErrorCallbackRegister(void (* callbackHandler)(void));
+
+/**
+ * @ingroup uart1
+ * @brief This is a pointer to the function that will be called upon transmit interrupt.
+ * @pre Initialize the UART1 module with transmit interrupt enabled
+ * @param None.
+ * @return None.
+ */
+void (*UART1_TxInterruptHandler)(void);
+
+/**
+ * @ingroup uart1
+ * @brief This API registers the function to be called upon Transmitter interrupt.
+ * @param callbackHandler - a function pointer which will be called upon Transmitter interrupt condition.
+ * @return None.
+ */
+void UART1_TxCompleteCallbackRegister(void (* callbackHandler)(void));
+
+/**
+ * @ingroup uart1
+ * @brief This is a pointer to the function that will be called upon receive interrupt.
+ * @pre Initialize the UART1 module with receive interrupt enabled
+ * @param None.
+ * @return None.
+ */
+void (*UART1_RxInterruptHandler)(void);
+/**
+ * @ingroup uart1
+ * @brief This API registers the function to be called upon Receiver interrupt.
+ * @param callbackHandler - a function pointer which will be called upon Receiver interrupt condition.
+ * @return None.
+ */
+void UART1_RxCompleteCallbackRegister(void (* callbackHandler)(void));
 
 #ifdef __cplusplus  // Provide C++ Compatibility
 

@@ -40,6 +40,12 @@
   Section: Macro Declarations
 */
 
+#define UART1_TX_BUFFER_SIZE (8) //buffer size should be 2^n
+#define UART1_TX_BUFFER_MASK (UART1_TX_BUFFER_SIZE - 1) 
+
+#define UART1_RX_BUFFER_SIZE (8) //buffer size should be 2^n
+#define UART1_RX_BUFFER_MASK (UART1_RX_BUFFER_SIZE - 1)
+
 /**
   Section: Driver Interface
  */
@@ -62,8 +68,8 @@ const uart_drv_interface_t UART1 = {
     .BaudRateGet = NULL,
     .AutoBaudEventEnableGet = NULL,
     .ErrorGet = &UART1_ErrorGet,
-    .TxCompleteCallbackRegister = NULL,
-    .RxCompleteCallbackRegister = NULL,
+    .TxCompleteCallbackRegister = &UART1_TxCompleteCallbackRegister,
+    .RxCompleteCallbackRegister = &UART1_RxCompleteCallbackRegister,
     .TxCollisionCallbackRegister = NULL,
     .FramingErrorCallbackRegister = &UART1_FramingErrorCallbackRegister,
     .OverrunErrorCallbackRegister = &UART1_OverrunErrorCallbackRegister,
@@ -74,6 +80,17 @@ const uart_drv_interface_t UART1 = {
 /**
   Section: UART1 variables
 */
+static volatile uint8_t uart1TxHead = 0;
+static volatile uint8_t uart1TxTail = 0;
+static volatile uint8_t uart1TxBuffer[UART1_TX_BUFFER_SIZE];
+volatile uint8_t uart1TxBufferRemaining;
+
+static volatile uint8_t uart1RxHead = 0;
+static volatile uint8_t uart1RxTail = 0;
+static volatile uint8_t uart1RxBuffer[UART1_RX_BUFFER_SIZE];
+static volatile uart1_status_t uart1RxStatusBuffer[UART1_RX_BUFFER_SIZE];
+volatile uint8_t uart1RxCount;
+
 volatile uart1_status_t uart1RxLastError;
 
 /**
@@ -83,10 +100,14 @@ volatile uart1_status_t uart1RxLastError;
 void (*UART1_FramingErrorHandler)(void);
 void (*UART1_OverrunErrorHandler)(void);
 void (*UART1_ParityErrorHandler)(void);
+void (*UART1_TxInterruptHandler)(void);
+void (*UART1_RxInterruptHandler)(void);
 
 static void UART1_DefaultFramingErrorCallback(void);
 static void UART1_DefaultOverrunErrorCallback(void);
 static void UART1_DefaultParityErrorCallback(void);
+void UART1_TransmitISR (void);
+void UART1_ReceiveISR(void);
 
 /**
   Section: UART1  APIs
@@ -94,6 +115,10 @@ static void UART1_DefaultParityErrorCallback(void);
 
 void UART1_Initialize(void)
 {
+    PIE4bits.U1RXIE = 0;   
+    UART1_RxCompleteCallbackRegister(UART1_ReceiveISR);  
+    PIE4bits.U1TXIE = 0; 
+    UART1_TxCompleteCallbackRegister(UART1_TransmitISR);
 
     // Set the UART1 module to the options selected in the user interface.
 
@@ -141,10 +166,19 @@ void UART1_Initialize(void)
     UART1_ParityErrorCallbackRegister(UART1_DefaultParityErrorCallback);
 
     uart1RxLastError.status = 0;  
+    uart1TxHead = 0;
+    uart1TxTail = 0;
+    uart1TxBufferRemaining = sizeof(uart1TxBuffer);
+    uart1RxHead = 0;
+    uart1RxTail = 0;
+    uart1RxCount = 0;
+    PIE4bits.U1RXIE = 1;
 }
 
 void UART1_Deinitialize(void)
 {
+    PIE4bits.U1RXIE = 0;   
+    PIE4bits.U1TXIE = 0;
     U1RXB = 0x00;
     U1RXCHK = 0x00;
     U1TXB = 0x00;
@@ -206,14 +240,33 @@ inline void UART1_SendBreakControlDisable(void)
     U1CON1bits.SENDB = 0;
 }
 
+inline void UART1_TransmitInterruptEnable(void)
+{
+    PIE4bits.U1TXIE = 1;
+}
+
+inline void UART1_TransmitInterruptDisable(void)
+{ 
+    PIE4bits.U1TXIE = 0;
+}
+
+inline void UART1_ReceiveInterruptEnable(void)
+{
+    PIE4bits.U1RXIE = 1;
+}
+inline void UART1_ReceiveInterruptDisable(void)
+{
+    PIE4bits.U1RXIE = 0;
+}
+
 bool UART1_IsRxReady(void)
 {
-    return (bool)(!U1FIFObits.RXBE);
+    return (uart1RxCount ? true : false);
 }
 
 bool UART1_IsTxReady(void)
 {
-    return (bool)(U1FIFObits.TXBE && U1CON0bits.TXEN);
+    return (uart1TxBufferRemaining ? true : false);
 }
 
 bool UART1_IsTxDone(void)
@@ -223,39 +276,128 @@ bool UART1_IsTxDone(void)
 
 size_t UART1_ErrorGet(void)
 {
-    uart1RxLastError.status = 0;
-    
-    if(U1ERRIRbits.FERIF)
-    {
-        uart1RxLastError.ferr = 1;
-        if(NULL != UART1_FramingErrorHandler)
-        {
-            UART1_FramingErrorHandler();
-        }  
-    }
-    if(U1ERRIRbits.RXFOIF)
-    {
-        uart1RxLastError.oerr = 1;
-        if(NULL != UART1_OverrunErrorHandler)
-        {
-            UART1_OverrunErrorHandler();
-        }   
-    }
+    uart1RxLastError.status = uart1RxStatusBuffer[(uart1RxTail + 1) & UART1_RX_BUFFER_MASK].status;
 
     return uart1RxLastError.status;
 }
 
 uint8_t UART1_Read(void)
 {
-    return U1RXB;
+    uint8_t readValue  = 0;
+    uint8_t tempRxTail;
+    
+    tempRxTail = (uart1RxTail + 1) & UART1_RX_BUFFER_MASK; // Buffer size of RX should be in the 2^n  
+    uart1RxTail = tempRxTail;  
+    readValue = uart1RxBuffer[uart1RxTail];
+    PIE4bits.U1RXIE = 0; 
+    if(uart1RxCount != 0)
+    {
+        uart1RxCount--;
+    }
+    PIE4bits.U1RXIE = 1;
+    return readValue;
 }
 
+void __interrupt(irq(IRQ_U1RX), base(8)) UART1_Receive_Vector_ISR(void)
+{   
+    if(UART1_RxInterruptHandler)
+    {
+        UART1_RxInterruptHandler();
+    }
+}
+
+void UART1_ReceiveISR(void)
+{
+    uint8_t regValue;
+	uint8_t tempRxHead;
+    // use this default receive interrupt handler code
+    uart1RxStatusBuffer[uart1RxHead].status = 0;
+
+    LED_LD12_SetHigh();
+    
+    if(U1ERRIRbits.FERIF)
+    {
+        uart1RxStatusBuffer[uart1RxHead].ferr = 1;
+        if(NULL != UART1_FramingErrorHandler)
+        {
+            UART1_FramingErrorHandler();
+        } 
+    }
+    if(U1ERRIRbits.RXFOIF)
+    {
+        uart1RxStatusBuffer[uart1RxHead].oerr = 1;
+        if(NULL != UART1_OverrunErrorHandler)
+        {
+            UART1_OverrunErrorHandler();
+        }   
+    }   
+ 
+    regValue = U1RXB;
+    
+    tempRxHead = (uart1RxHead + 1) & UART1_RX_BUFFER_MASK;
+    if (tempRxHead == uart1RxTail) 
+    {
+		// ERROR! Receive buffer overflow 
+	} 
+    else
+    {
+		uart1RxHead = tempRxHead;
+		uart1RxBuffer[tempRxHead] = regValue;
+		uart1RxCount++;
+	}
+    
+    LED_LD12_SetLow();
+}
 
 void UART1_Write(uint8_t txData)
 {
-    U1TXB = txData; 
+    uint8_t tempTxHead;
+    
+    if(0 == PIE4bits.U1TXIE)
+    {
+        U1TXB = txData;
+    }
+    else if(uart1TxBufferRemaining) // check if at least one byte place is available in TX buffer
+    {
+       tempTxHead = (uart1TxHead + 1) & UART1_TX_BUFFER_MASK;
+       
+       uart1TxBuffer[tempTxHead] = txData;
+       uart1TxHead = tempTxHead;
+       PIE4bits.U1TXIE = 0; //Critical value decrement
+       uart1TxBufferRemaining--; // one less byte remaining in TX buffer
+    }
+    else
+    {
+        //overflow condition; uart1TxBufferRemaining is 0 means TX buffer is full
+    }
+    PIE4bits.U1TXIE = 1;
 }
 
+void __interrupt(irq(IRQ_U1TX), base(8)) UART1_Transmit_Vector_ISR(void)
+{   
+    if(UART1_TxInterruptHandler)
+    {
+        UART1_TxInterruptHandler();
+    }
+}
+
+void UART1_TransmitISR(void)
+{
+    uint8_t tempTxTail;
+    // use this default transmit interrupt handler code
+    if(sizeof(uart1TxBuffer) > uart1TxBufferRemaining) // check if all data is transmitted
+    {
+       tempTxTail = (uart1TxTail + 1) & UART1_TX_BUFFER_MASK;
+       
+       uart1TxTail = tempTxTail;
+       U1TXB = uart1TxBuffer[tempTxTail];
+       uart1TxBufferRemaining++; // one byte sent, so 1 more byte place is available in TX buffer
+    }
+    else
+    {
+        PIE4bits.U1TXIE = 0;
+    }
+}
 
 int getch(void)
 {
@@ -311,3 +453,19 @@ void UART1_ParityErrorCallbackRegister(void (* callbackHandler)(void))
         UART1_ParityErrorHandler = callbackHandler;
     } 
 }
+void UART1_RxCompleteCallbackRegister(void (* callbackHandler)(void))
+{
+    if(NULL != callbackHandler)
+    {
+       UART1_RxInterruptHandler = callbackHandler; 
+    }   
+}
+
+void UART1_TxCompleteCallbackRegister(void (* callbackHandler)(void))
+{
+    if(NULL != callbackHandler)
+    {
+       UART1_TxInterruptHandler = callbackHandler;
+    }   
+}
+
